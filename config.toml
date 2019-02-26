@@ -1,0 +1,32 @@
+#vim:ft=toml
+baseURL = "https://cli.fan/"
+languageCode = "en-us"
+theme = "terminal"
+enableEmoji = true
+enableRobotsTXT = true
+
+[params]
+  themeColor = "red"
+
+[languages]
+  [languages.en]
+    title = "cli.fan"
+    subtitle = "Improving your workflow since 2019"
+    keywords = "blog"
+    copyright = "Copyright 2019 Jamie Luck (delucks)"
+    readMore = "Read more"
+    readOtherPosts = "Similar tools for your consideration"
+
+    [languages.en.params.logo]
+      logoText = "cli.fan"
+      logoHomeLink = "/"
+
+    [languages.en.menu]
+      [[languages.en.menu.main]]
+        identifier = "rss"
+        name = "RSS Feed"
+        url = "/posts/index.xml"
+      [[languages.en.menu.main]]
+        identifier = "source"
+        name = "Source"
+        url = "https://github.com/delucks/cli.fan"
