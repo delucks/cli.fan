@@ -6,7 +6,7 @@ enableEmoji = true
 enableRobotsTXT = true
 
 [params]
-  themeColor = "red"
+  themeColor = "yellow"
 
 [languages]
   [languages.en]
@@ -15,7 +15,7 @@ enableRobotsTXT = true
     keywords = "blog"
     copyright = "Copyright 2019 Jamie Luck (delucks)"
     readMore = "Read more"
-    readOtherPosts = "Similar tools for your consideration"
+    readOtherPosts = "Other posts on cli.fan"
 
     [languages.en.params.logo]
       logoText = "cli.fan"
