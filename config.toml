@@ -1,7 +1,7 @@
 #vim:ft=toml
 baseURL = "https://cli.fan/"
 languageCode = "en-us"
-theme = "terminal"
+theme = "hello-friend"
 enableEmoji = true
 enableRobotsTXT = true
 
