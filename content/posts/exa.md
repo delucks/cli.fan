@@ -16,6 +16,7 @@ draft: true
 | Version Control | git on [github](https://github.com/ogham/exa) |
 | Author | Benjamin Sago ([ogham](https://github.com/ogham/)) |
 | Language | Rust |
+| Binary Size | `1.4M` |
 
 In this post, I'm using `exa` version 0.8.0 and comparing with stock OSX `ls` (likely ancient) and GNU `ls` version 8.3.0.
 
@@ -194,3 +195,7 @@ The terminal color support can also be used for weighting filesizes. I created a
 ![exa --color-scale](/exa_color-scale.png)
 
 Hmm... not so distinctive. I got better results for this on OSX, for what it's worth.
+
+## tl;dr
+
+`exa` provides a fresh take on `ls`, stacking on features useful to the average developer while retaining most options from the original. If you have a `l` alias that sets many `ls` flags to make the output easier to read, it might be time to try a new tool.
