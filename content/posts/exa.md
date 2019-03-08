@@ -1,6 +1,6 @@
 ---
 title: "exa"
-date: 2019-02-06T11:13:50-05:00
+date: 2019-03-06T11:13:50-05:00
 description: "exa: A modern version of `ls`"
 draft: true
 ---
@@ -9,19 +9,21 @@ draft: true
 
 `exa` is a new iteration on `ls`. It faithfully implements common display flags to `ls` while removing some infrequently-used features and adding support for version control status & semantic terminal highlighting.
 
+![exa overview](/exa_main.png)
+
 | Quick Facts | |
 | ---- | ----------- |
 | Version Control | git on [github](https://github.com/ogham/exa) |
 | Author | Benjamin Sago ([ogham](https://github.com/ogham/)) |
 | Language | Rust |
 
-In this post, I'm using `exa` version 0.7.0 and both the stock OSX `ls` (which is probably > 10 years old) and GNU `ls`.
+In this post, I'm using `exa` version 0.8.0 and comparing with stock OSX `ls` (likely ancient) and GNU `ls` version 8.3.0.
 
 ## Installation
 
 `exa` is distributed as a statically compiled binary for x86_64. You can find downloads for Linux & Mac OSX on the [github release page](https://github.com/ogham/exa/releases). Other target architectures may compile using the rust toolchain.
 
-You can also install `exa` through a few package managers. If you're using homebrew on OSX, `brew install exa`. If you're a rust developer, `cargo install exa`. If you're using the Nix package manager, `nix-env -i exa`.
+You can also install `exa` through a few package managers. Using homebrew on OSX, `brew install exa`. If you're a rust developer, `cargo install exa`. If you're using the Nix package manager, `nix-env -i exa`.
 
 ## Usage
 
@@ -73,11 +75,11 @@ Session.vim  archetypes/  config.toml  content/  resources/  themes/
 | `-r` | Reverse sort order |
 | `-x` | Sort columns rather than rows in grid format |
 | `-R` | Recurse into subdirectories |
-| `-g` | Show group name in long output (`-l`) |
+| BSD `-g` | Show group name in long output (`-l`) |
 | `-i` | Show inode in long output (`-l`) |
 | `-u` | Use last access time for sorting & printing |
-| `-U` | Use creation time for sorting & printing |
-| `-@` | Display extended attributes in long output (`-l`) |
+| BSD `-U` | Use creation time for sorting & printing |
+| BSD `-@` | Display extended attributes in long output (`-l`) |
 
 However, some common `ls` flags have different meanings, which is confusing for newcomers. `-t` turns on sorting by time in `ls`, but in `exa` it's a selector for which timestamp field you want to show in long output. `-h` turns on human-readable sizes in `ls`, but `exa` does this by default so they repurpose the flag to add a header.
 
@@ -115,27 +117,58 @@ The long display format also has a number of feature flags. `exa` supports print
 ```text
 $ exa -lh
 Permissions Size User  Date Modified Name
-.rw-r--r--    69 jluck  1 Mar  9:28  Session.vim
-drwxr-xr-x     - jluck  6 Mar  6:58  archetypes
-.rw-r--r--   779 jluck  1 Mar 10:10  config.toml
-drwxr-xr-x     - jluck  1 Mar  9:28  content
-drwxr-xr-x     - jluck  1 Mar  9:29  resources
-drwxr-xr-x     - jluck  1 Mar  9:28  themes
+.rw-r--r--    69 jamie  1 Mar  9:28  Session.vim
+drwxr-xr-x     - jamie  6 Mar  6:58  archetypes
+.rw-r--r--   779 jamie  1 Mar 10:10  config.toml
+drwxr-xr-x     - jamie  1 Mar  9:28  content
+drwxr-xr-x     - jamie  1 Mar  9:29  resources
+drwxr-xr-x     - jamie  1 Mar  9:28  themes
 ```
 
 `exa` also understands git version control status, which can be turned on with the `--git` flag:
 
 ```text
 $ exa --git -l
-.rw-r--r--  69 jluck  1 Mar  9:28 -- Session.vim
-drwxr-xr-x   - jluck  6 Mar  6:58 -- archetypes
-.rw-r--r-- 779 jluck  1 Mar 10:10 -M config.toml
-drwxr-xr-x   - jluck  1 Mar  9:28 -M content
-drwxr-xr-x   - jluck  1 Mar  9:29 -- resources
-drwxr-xr-x   - jluck  1 Mar  9:28 -- themes
+.rw-r--r--  69 jamie  1 Mar  9:28 -- Session.vim
+drwxr-xr-x   - jamie  6 Mar  6:58 -- archetypes
+.rw-r--r-- 779 jamie  1 Mar 10:10 -M config.toml
+drwxr-xr-x   - jamie  1 Mar  9:28 -M content
+drwxr-xr-x   - jamie  1 Mar  9:29 -- resources
+drwxr-xr-x   - jamie  1 Mar  9:28 -- themes
 ```
 
-In the above output, config.toml & content are modified files in this git repository.
+In the above output, config.toml & content are modified files in this git repository. There's also support for ignoring files in `.gitignore`, with `--git-ignore`:
+
+```text
+$ exa -l --git
+drwxr-xr-x    - jamie  6 Feb 11:14 -- archetypes
+.rw-r--r--  779 jamie  8 Mar  0:21 -- config.toml
+drwxr-xr-x    - jamie  5 Feb 18:58 -M content
+drwxr-xr-x    - jamie  5 Feb 18:56 -- data
+drwxr-xr-x    - jamie  5 Feb 18:56 -- layouts
+drwxr-xr-x    - jamie 20 Feb 11:53 -- public
+drwxr-xr-x    - jamie  5 Feb 18:58 -- resources
+.rw-r--r--   69 jamie  6 Feb 11:14 -- Session.vim
+drwxr-xr-x    - jamie  8 Mar  0:21 -- static
+drwxr-xr-x    - jamie  5 Feb 18:58 -- themes
+.rw-r--r-- 1.7k jamie 25 Feb 23:20 -- TODO.md
+$ cat .gitignore
+TODO.md
+public/
+*.swp
+*.swo
+$ exa -l --git --git-ignore
+drwxr-xr-x   - jamie  6 Feb 11:14 -- archetypes
+.rw-r--r-- 779 jamie  8 Mar  0:21 -- config.toml
+drwxr-xr-x   - jamie  5 Feb 18:58 -M content
+drwxr-xr-x   - jamie  5 Feb 18:56 -- data
+drwxr-xr-x   - jamie  5 Feb 18:56 -- layouts
+drwxr-xr-x   - jamie 20 Feb 11:53 -- public
+drwxr-xr-x   - jamie  5 Feb 18:58 -- resources
+.rw-r--r--  69 jamie  6 Feb 11:14 -- Session.vim
+drwxr-xr-x   - jamie  8 Mar  0:21 -- static
+drwxr-xr-x   - jamie  5 Feb 18:58 -- themes
+```
 
 To supplement the shell's wildcard support, `exa` supports globbing ignore with the `-I` flag:
 
@@ -148,16 +181,16 @@ Another cool `exa` feature is support for displaying timestamps in a number of d
 
 ```text
 $ exa --time-style full-iso -l
-.rw-r--r--  69 jluck 2019-03-01 09:28:30.488772561 -0800 Session.vim
-drwxr-xr-x   - jluck 2019-03-06 06:58:02.198227736 -0800 archetypes
-.rw-r--r-- 779 jluck 2019-03-01 10:10:40.691602867 -0800 config.toml
-drwxr-xr-x   - jluck 2019-03-01 09:28:30.490107441 -0800 content
-drwxr-xr-x   - jluck 2019-03-01 09:29:26.427271484 -0800 resources
-drwxr-xr-x   - jluck 2019-03-01 09:28:30.490768092 -0800 themes
+.rw-r--r--  69 jamie 2019-03-01 09:28:30.488772561 -0800 Session.vim
+drwxr-xr-x   - jamie 2019-03-06 06:58:02.198227736 -0800 archetypes
+.rw-r--r-- 779 jamie 2019-03-01 10:10:40.691602867 -0800 config.toml
+drwxr-xr-x   - jamie 2019-03-01 09:28:30.490107441 -0800 content
+drwxr-xr-x   - jamie 2019-03-01 09:29:26.427271484 -0800 resources
+drwxr-xr-x   - jamie 2019-03-01 09:28:30.490768092 -0800 themes
 ```
 
-The terminal color support can also be used for weighting filesizes. I created a large file (called "largefile" because I'm creative) in the current directory to show off `--color-scale`:
+The terminal color support can also be used for weighting filesizes. I created a large file (called "bigfile" because I'm creative) and several other smaller files in the current directory to show off `--color-scale`:
 
 ![exa --color-scale](/exa_color-scale.png)
 
-The multi-GB file which I created is much larger than the rest, so `exa` shows that using the color of the size column in long output.
+Hmm... not so distinctive. I got better results for this on OSX, for what it's worth.
