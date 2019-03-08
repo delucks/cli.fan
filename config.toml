@@ -13,7 +13,7 @@ enableRobotsTXT = true
     title = "cli.fan"
     subtitle = "Improving your workflow since 2019"
     keywords = "blog"
-    copyright = "Copyright 2019 Jamie Luck (delucks)"
+    copyright = 'Copyright 2019 Jamie Luck (<a href="https://github.com/delucks/">delucks</a>)'
     readMore = "Read more"
     readOtherPosts = "Other posts on cli.fan"
 
