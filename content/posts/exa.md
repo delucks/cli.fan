@@ -2,7 +2,7 @@
 title: "exa"
 date: 2019-03-06T11:13:50-05:00
 description: "exa: A modern version of `ls`"
-draft: true
+draft: false
 ---
 
 # exa
