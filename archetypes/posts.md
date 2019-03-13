@@ -1,13 +1,26 @@
 ---
 title: "{{ replace .Name "-" " " | title }}"
 date: {{ .Date }}
-description: "cli.fan entry for {{ .Name }}"
+description: "{{ .Name }}: short tagline"
 draft: true
 ---
 
 # {{ .Name }}
 
-Introduction for tool {{ .Name }} goes here!
+`{{ .Name }}` is a... and you should are about it because...
+
+![{{ .Name }} overview](/{{ .Name }}_main.png)
+
+| Quick Facts | |
+| ---- | ----------- |
+| Version Control | vc on [provider](https://site.com/) |
+| Author | Authorname ([alias](https://author.link)) |
+| Language | Lang |
+| Binary Size | `Size in K, M, or G` |
+
+## Installation
+
+`{{ .Name }}` is distributed...
 
 ## Usage
 
@@ -15,10 +28,6 @@ Introduction for tool {{ .Name }} goes here!
 $ {{ .Name }}
 ```
 
-## Links
+## tl;dr
 
-| Link | Description |
-| ---- | ----------- |
-| Source Code | [github](https://github.com/foo/{{ .Name }}) |
-| Author | {{ .Name }} was written by person |
-| Language | {{ .Name }} is written in language |
+(re)Summarize why this tool is interesting and worth using.
