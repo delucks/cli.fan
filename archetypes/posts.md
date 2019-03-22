@@ -31,3 +31,5 @@ $ {{ .Name }}
 ## tl;dr
 
 (re)Summarize why this tool is interesting and worth using.
+
+:information_source: **Interested in seeing more posts like this?** Subscribe to the [cli.fan RSS feed](/posts/index.xml) linked here and in the top navigation bar.
