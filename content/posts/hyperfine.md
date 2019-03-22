@@ -2,7 +2,7 @@
 title: "hyperfine"
 date: 2019-03-21T14:50:23-04:00
 description: "hyperfine: a shell benchmarking utility"
-draft: true
+draft: false
 ---
 
 # a benchmarking utility
@@ -231,4 +231,3 @@ Personally, I would recommend running the command you intend on benchmarking man
 `hyperfine` provides a nice balance of features against binary size and ease of installation. The JSON output format and `--prepare` feature make it worth trying for your next benchmarking use-case.
 
 :information_source: **Interested in seeing more posts like this?** Subscribe to the [cli.fan RSS feed](/posts/index.xml) linked here and in the top navigation bar.
-
