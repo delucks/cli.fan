@@ -218,6 +218,8 @@ The benchmarks match our hypothesis: the slowest sections are 3, 1, 8, and 7- th
 
 I'm interested in hearing your use-case for `-P` if you have one- it's clearly powerful but difficult to think about in the abstract.
 
+Edit: [reader bdesham pointed out](https://lobste.rs/s/mo5kwx/hyperfine_shell_benchmarking_utility) that `-P` is useful to adjust the amount of parallelism in a command. Programs like make, GNU parallel, and GHC take a `-j` style parameter which specifies the count of tasks to run simultaneously. This parameter can be incremented by `hyperfine` to produce a [parallelism profile](https://en.wikipedia.org/wiki/Degree_of_parallelism). Thanks bdesham!
+
 The other notion of "parameterization" I've seen used with `hyperfine` is the use of shell variables in the commands you're running. This is easy to perform but won't change per-run of the command.
 
 ### Debugging Failing Commands
