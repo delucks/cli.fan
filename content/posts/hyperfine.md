@@ -51,7 +51,7 @@ A couple things to note there- first, you're only seeing the standard output of 
 
 ![Animated hyperfine progressbar image](/hyperfine_progressbar.svg)
 
-Second, the two warnings at the bottom tell you about `hyperfine`'s statistical methodology. `hyperfine` attemps calculation of the mean time of execution and the standard deviation. When a command completes very quickly (like `ls` in a directory with only 12 entries), these results may not represent the timing of the command very well. Likewise, outliers can substantially affect these non-stable statistics.
+Second, the two warnings at the bottom tell you about `hyperfine`'s statistical methodology. `hyperfine` attempts calculation of the mean time of execution and the standard deviation. When a command completes very quickly (like `ls` in a directory with only 12 entries), these results may not represent the timing of the command very well. Likewise, outliers can substantially affect these non-stable statistics.
 
 Before discussing how to reduce the influence of outliers, I want to draw your attention to the run count in the snippet above, beneath `User: 0.6ms`. For this program's timing run, `hyperfine` decided to run `ls` **2125 times**. `hyperfine` will automatically adjust the count of runs depending on the time for each individual run. By default, `hyperfine` chooses ten runs as the lower bound and will adjust upward if the command completes quickly. You can override this behavior with the `-r`/`--runs` flag, which specifies an absolute count of runs of the program to execute. The `-m` and `-M` flags let you specify a minimum and maximum count of runs to express a range.
 
@@ -110,7 +110,7 @@ Benchmark #1: find /usr/share/man/ -type f -name '*.gz' | xargs -L 1 -P 8 zgrep 
 
 ```
 
-Cool, we just created a _really_ naive `man -k` implementation. How fast is it comapred to the real thing? `hyperfine` can comparing multiple pipelines that are passed as additional arguments, so let's pass `man -k syslog` too:
+Cool, we just created a _really_ naive `man -k` implementation. How fast is it compared to the real thing? `hyperfine` can comparing multiple pipelines that are passed as additional arguments, so let's pass `man -k syslog` too:
 
 ```
 $ hyperfine -p 'sync; echo 3 | sudo tee /proc/sys/vm/drop_caches' "man -k syslog" "find /usr/share/man/ -type f -name '*.gz' | xargs -L 1 -P 8 zgrep syslog || true"
@@ -128,7 +128,7 @@ Summary
 
 ```
 
-Since these two commands had vastly different timings, the confidence interval is a bit wide. A good thing to note here is that the `--prepare` command is run before all benchmrks, you don't have to pass multiple `--prepare` if you pass multiple commands.
+Since these two commands had vastly different timings, the confidence interval is a bit wide. A good thing to note here is that the `--prepare` command is run before all benchmarks, you don't have to pass multiple `--prepare` if you pass multiple commands.
 
 ### Output Formats
 
