@@ -22,4 +22,4 @@ For each post, I'll give the same basic information plus any cool facts specific
 - Link to the source code
 - Quick sense of how "active" the project's development has been recently
 
-I'm going to be coming at most of these tools as an absolute beginner to keep my tone as approacheable as possible. If you find anything amiss or difficult to read, please open an issue on the [github page](https://github.com/delucks/cli.fan/issues) for this repository!
+I'm going to be coming at most of these tools as an absolute beginner to keep my tone as approachable as possible. If you find anything amiss or difficult to read, please open an issue on the [github page](https://github.com/delucks/cli.fan/issues) for this repository!
