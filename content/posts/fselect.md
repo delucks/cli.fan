@@ -1,8 +1,8 @@
 ---
 title: "fselect"
-date: 2019-06-20T10:34:40-04:00
+date: 2019-09-13T17:35:40-04:00
 description: "fselect: Find files with SQL-like queries"
-draft: true
+draft: false
 ---
 
 # Find files with SQL-like queries
