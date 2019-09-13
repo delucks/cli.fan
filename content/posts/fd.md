@@ -17,6 +17,7 @@ This post is the first in a series evaluating tools that perform the same functi
 | Author | David Peter ([sharkdp](https://david-peter.de/)) |
 | Language | Rust |
 | Binary Size | `2.2M` |
+| Version Reviewed | 7.3.0 |
 
 ## Installation
 
@@ -75,8 +76,7 @@ $ find -maxdepth 1
 
 A few differences are immediately apparent: `fd` does not include the path fragment `./` in relative results. `fd` also chooses the GNU longopt format `--max-depth` instead of the POSIX `-maxdepth`. Judgements of quality aside, the GNU format is more widespread these days and less intimidating to new command-line users.
 
-# TODO
-The only argument to `fd` is a pattern to search for:
+The first argument to `fd` is a pattern to search among files beneath the current directory. If this path is omitted, the pattern is implicitly the empty string which matches everything.
 
 ```
 $ fd -d1 bin
@@ -95,7 +95,30 @@ $ fd -d1 -F 's?b.n'
 
 The pattern's case sensitivity is controlled by the `-s` and `-i` options, which turn on sensitive and insensitive match respectively. The default is "smart case", which turns on case sensitivity when capitals are used in the pattern.
 
-Both `fd` and `find` will print absolute paths if you pass an absolute path as the directory argument, 
+The second argument to `fd` is the starting directory. If this is omitted, it is implicitly `.`, the current directory. You can pass multiple values for the start directory, they will all be searched for the pattern:
+
+```
+$ fd -d1 's?b.n' / /usr
+/bin
+/sbin
+/usr/bin
+/usr/sbin
+```
+
+Both `fd` and `find` will print absolute paths if you pass an absolute path as the directory argument, reflecting that the root search directory is always the start directory. `fd` optionally allows you to print the full path with a relative search directory- the `-a`/`--absolute-path` argument enables this behavior.
+
+Speaking of path selection, `fd` attempts to ignore paths specified in a `.gitignore` file if one is present in the start directory. If you're working outside a git repository (or just want to blacklist certain files or paths at a directory level), you can create a `.fdignore` file in the same gitignore format.
+
+```
+$ cat ~/.fdignore
+*.pyc
+.cache/
+$ fd '\.pyc$' ~
+```
+
+You can turn off this behavior with `-I`/`--no-ignore`. Important to note: without `-H`/`--hidden`, `fd` will also not search through "hidden" files (implementation is OS-dependent).
+
+Now that we've talked through the basic path selection features `fd` has in common with `find`, let's take a look at some of `fd`'s novel features.
 
 ## tl;dr
 

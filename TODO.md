@@ -45,6 +45,8 @@ tsung           http://tsung.erlang-projects.org/1/01/about/)
 
 LOC counters =============================================
 cloc            https://github.com/AlDanial/cloc
+loc							https://github.com/cgag/loc
+tokei						https://github.com/XAMPPRocky/tokei
 scc             github.com/boyter/scc
 
 Fuzzy Finders ============================================
