@@ -2,6 +2,7 @@ Done ===========================================================================
 Introduction
 exa             github.com/ogham/exa                  ls++
 hyperfine       github.com/sharkdp/hyperfine
+fselect         github.com/jhspetersson/fselect       select file names and other metadata with sql-like syntax
 
 TODO ===================================================================================
 
@@ -56,7 +57,6 @@ pick            https://github.com/mptre/pick
 icepick         https://github.com/felipesere/icepick
 
 "find" iterations ========================================
-fselect         github.com/jhspetersson/fselect       select file names and other metadata with sql-like syntax
 fd              github.com/sharkdp/fd                 find iteration
 broot                                                 directory finding tool
 
