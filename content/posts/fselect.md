@@ -220,7 +220,7 @@ $ fselect "AVG(size) from /home/delucks where is_video=1"
 13361869
 ```
 
-Note that results of these functions cannot be the inputs to other functions:
+One thing I noticed was that results of these functions cannot be the inputs to other functions. In the version I was working with, here's what that looks like:
 
 ```
 $ fselect "YEAR(modified) from Downloads" | sort | uniq -c | sort -rn
@@ -236,6 +236,8 @@ $ fselect "MIN(YEAR(modified)) from Downloads"
 $ fselect "MAX(YEAR(modified)) from Downloads"
 0
 ```
+
+After posting this, the author [fixed that behavior](https://github.com/jhspetersson/fselect/commit/ec13431527425dc504e6c53f069cc69441b72c53) so now those functions should work together. Thanks jhspetersson :smile:
 
 Here's a list of all the [built-in numeric and aggregation functions](https://github.com/jhspetersson/fselect/blob/0.6.5/src/function.rs#177) in version 0.6.5.
 
