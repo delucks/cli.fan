@@ -7,9 +7,9 @@ draft: true
 
 # progress
 
-`progress` is a small Linux application which reports the progress of file write operations initiated by coreutils programs like `cp`, `mv`, `dd`, and several others.
+`progress` is a small Linux application which reports the progress of file read/write operations initiated by coreutils programs like `cp`, `mv`, and `dd`, but also arbitrary processes that have entries in `/proc`.
 
-![progress overview](/progress_main.png)
+![progress overview](/progress_main.svg)
 
 | Quick Facts | |
 | ---- | ----------- |
@@ -44,19 +44,59 @@ $ progress
 
 Whoops, I don't have any running. Let's set up a script that is constantly reading and writing files, so we can illustrate `progress` on some relatively common operations. The following bash script will create a few files between 1 and 10 gigabytes, copy them to `/tmp`, then remove the files in `/tmp` and remove the original files.
 
-INCLUDE test_progress.sh here
+```bash
+#!/bin/bash -e
+
+ORIGIN_FILENAMES=(File_1000000 File_2000000 File_10000000)
+TMP_DIR=/tmp/progress_test
+
+# Create a few large files using dd
+for fn in ${ORIGIN_FILENAMES[*]}
+do
+  # Spawn each dd process with a different size
+  size=$(echo "$fn" | awk -F'_' '{print $NF}')
+  dd if=/dev/urandom of="$fn" bs=1024 count="$size" &
+done
+# Wait on all to complete before continuing
+wait < <(jobs -p)
+
+# Copy these large files into /tmp simultaneously
+mkdir -p "$TMP_DIR" 
+for fn in ${ORIGIN_FILENAMES[*]}
+do
+  # Spawn each copy process
+  cp "$fn" "$TMP_DIR" &
+done
+# Wait on all processes before continuing
+wait < <(jobs -p)
+
+# Verify they were copied, remove them from /tmp
+for fn in ${ORIGIN_FILENAMES[*]}
+do
+  test -f "$TMP_DIR/$fn" && rm "$TMP_DIR/$fn"
+done
+rmdir "$TMP_DIR"
+
+# Remove the original files
+for fn in ${ORIGIN_FILENAMES[*]}
+do
+  rm "$fn" &
+done
+wait < <(jobs -p)
+```
+
 
 Now that we have some operations to report, let's try `progress`:
 
 ```
 $ progress
-[20293] dd /home/jamie/dev/cli.fan/File_1000000
+[20293] dd /home/delucks/dev/cli.fan/File_1000000
         100.0% (440.1 MiB / 440.1 MiB)
 
-[20297] dd /home/jamie/dev/cli.fan/File_2000000
+[20297] dd /home/delucks/dev/cli.fan/File_2000000
         100.0% (433.2 MiB / 433.2 MiB)
 
-[20301] dd /home/jamie/dev/cli.fan/File_10000000
+[20301] dd /home/delucks/dev/cli.fan/File_10000000
         100.0% (413.7 MiB / 413.7 MiB)
 
 ```
@@ -69,23 +109,23 @@ You can see what this _should_ look like a bit below, when we copy these files t
 
 ```
 $ progress -w
-[20293] dd /home/jamie/dev/cli.fan/File_1000000
+[20293] dd /home/delucks/dev/cli.fan/File_1000000
         100.0% (829.1 MiB / 829.1 MiB) 6.9 MiB/s
 
-[20297] dd /home/jamie/dev/cli.fan/File_2000000
+[20297] dd /home/delucks/dev/cli.fan/File_2000000
         100.0% (823.4 MiB / 823.4 MiB) 6.9 MiB/s
 
-[20301] dd /home/jamie/dev/cli.fan/File_10000000
+[20301] dd /home/delucks/dev/cli.fan/File_10000000
         100.0% (816.7 MiB / 816.7 MiB) 5.9 MiB/s
 
 $ progress -w -W 5
-[20293] dd /home/jamie/dev/cli.fan/File_1000000
+[20293] dd /home/delucks/dev/cli.fan/File_1000000
         100.0% (889.8 MiB / 889.8 MiB) 6.8 MiB/s
 
-[20297] dd /home/jamie/dev/cli.fan/File_2000000
+[20297] dd /home/delucks/dev/cli.fan/File_2000000
         100.0% (884.4 MiB / 884.4 MiB) 7.0 MiB/s
 
-[20301] dd /home/jamie/dev/cli.fan/File_10000000
+[20301] dd /home/delucks/dev/cli.fan/File_10000000
         100.0% (877.8 MiB / 877.8 MiB) 6.8 MiB/s
 
 ```
@@ -94,17 +134,17 @@ You can see all the detail that was missing from the `dd` commands in the follow
 
 ```
 $ progress -w
-[22791] cp /home/jamie/dev/cli.fan/File_2000000
+[22791] cp /home/delucks/dev/cli.fan/File_2000000
         86.0% (1.6 GiB / 1.9 GiB) 18.1 MiB/s remaining 0:00:15
 
-[22792] cp /home/jamie/dev/cli.fan/File_10000000
+[22792] cp /home/delucks/dev/cli.fan/File_10000000
         17.1% (1.6 GiB / 9.5 GiB) 20.5 MiB/s remaining 0:06:34
 
 $ progress -w -W 5
-[22791] cp /home/jamie/dev/cli.fan/File_2000000
+[22791] cp /home/delucks/dev/cli.fan/File_2000000
         98.3% (1.9 GiB / 1.9 GiB)
 
-[22792] cp /home/jamie/dev/cli.fan/File_10000000
+[22792] cp /home/delucks/dev/cli.fan/File_10000000
         25.7% (2.4 GiB / 9.5 GiB) 120.1 MiB/s remaining 0:01:00
 
 ```
@@ -142,8 +182,14 @@ The `-c`/`--command` flag tells `progress` to only watch for that command name w
 
 If you want to bypass this "scanning through /proc" behavior, you can directly pass process IDs with the `-p`/`--pid` argument.
 
+`progress` provides some built-in watch functionality with the `-m`/`--monitor` flag, which is similar in behavior to `watch progress`, except that it only loops for the lifetime of the processes initially found in the first search. Closely related is the `-M`/`--monitor-continuously` flag, which loops endlessly picking up new processes on each iteration. Here's a recording of using the `-M` flag with the `curl` examples above:
+
+![progress monitoring example](/progress_monitor.svg)
+
+That's all the functionality `progress` has! It's tightly focused and useful at what it does.
+
 ## tl;dr
 
-(re)Summarize why this tool is interesting and worth using.
+`progress` fills a niche. Being able to see the progress of operations that typically occur with no user-facing signs of progress is a major step forward for operators that aren't already used to digging through `/proc`. The ability to monitor arbitrary programs including web browsers makes `progress` a useful tool to keep around.
 
 :information_source: **Interested in seeing more posts like this?** Subscribe to the [cli.fan RSS feed](/posts/index.xml) linked here and in the top navigation bar.
