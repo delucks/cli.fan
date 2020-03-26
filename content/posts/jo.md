@@ -2,7 +2,7 @@
 title: "jo"
 date: 2020-03-26T17:26:20-04:00
 description: "jo: Construct JSON objects on the command-line"
-draft: true
+draft: false
 ---
 
 # jo
