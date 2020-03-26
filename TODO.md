@@ -131,6 +131,7 @@ termtosvg       github.com/nbedos/termtosvg
 lines           github.com/karrick/lines              head/tail but in the middle
 http-prompt     https://github.com/eliangcs/http-prompt
 remarshal       https://github.com/dbohdan/remarshal  json/yaml/toml converter
+wuzz            https://github.com/asciimoo/wuzz      HTTP response code inspector
 
 Links and Research =====================================================================
 
