@@ -1,6 +1,6 @@
 ---
 title: "jo"
-date: 2020-01-07T22:26:37-05:00
+date: 2020-03-26T17:26:20-04:00
 description: "jo: Construct JSON objects on the command-line"
 draft: true
 ---
@@ -128,9 +128,26 @@ Argument `HelloWorld.new(\"World\")\nhello.sayHi"}' is neither k=v nor k@v
 }
 ```
 
-Whaaats all this? Now we see the downside of using command substitution for composing together these objects: shell quoting! Remember we're working in shell here, not a programming language that understands whitespace.
+Well that didn't work at all! Now we see the downside of using multiple layers of command substitution for composing these objects: shell quoting! Remember we're working in shell here, not a programming language with consistent whitespace handling :smile:
 
-Thankfully, `jo` has a feature for this. In addition to reading a file as plain text with `@`, you can read a JSON file with `:`. Dumping an inner JSON object to a file, then re-reading it is one option. Another option is to use [process substitution](https://www.tldp.org/LDP/abs/html/process-sub.html), which connects the stdin and stdout of multiple commands. Since stdin/stdout are files, we can get `jo` to read a nested JSON document as a file rather than arguments to the outer `jo` invocation, correctly handling whitespace.
+Thankfully, `jo` has a feature for this. In addition to reading a file as plain text with `@`, you can read a JSON file with `:`. Dumping an inner JSON object to a file, then re-reading it is one option. Another option is to use [process substitution](https://www.tldp.org/LDP/abs/html/process-sub.html) (aka the penguin operator) to connect the stdin and stdout of multiple commands.
+
+```
+$ cat test.txt
+File contents
+with whitespace
+$ jo -p foo=:<(jo bar=:<(jo baz=@test.txt) qux=@test.txt)
+{
+  "foo": {
+    "bar": {
+      "baz": "File contents\nwith whitespace"
+    },
+    "qux": "File contents\nwith whitespace"
+  }
+}
+```
+
+Using process substitution lets `jo` read the nested JSON document as a file rather than additional arguments to the command. Since stdin and stdout are files instead of strings passed as arguments, whitespace is handled correctly.
 
 ```
 $ jo -p description="Hello World Examples" public@true files=:<(jo hello_world.rb=:<(jo content=@hello_world.rb))
@@ -152,7 +169,7 @@ $ curl -XPOST 'https://api.github.com/gists' -u "delucks:${GITHUB_TOKEN}" -d "$(
 https://gist.github.com/delucks/31295c493f9d3ea3906869e97a8192ef
 ```
 
-That would be a nice little shell function:
+Great! To generalize this a bit, we could turn it into a shell function that uploads public gists of a single file.
 
 ```bash
 gistit() {
@@ -160,12 +177,80 @@ gistit() {
 }
 ```
 
-As you can see, `jo` makes this kind of work pretty easy compared to manually assembling the JSON structure as a string.
+As you can see, `jo` lets you construct JSON documents quickly and legibly compared with concatenating and formatting strings alone.
 
-Let's try a more involved example. If 
+Let's try a more involved example. Recently, systemd added support for a service called [`systemd-homed`](https://systemd.io/HOME_DIRECTORY/), which manages home directories of users for portability between different systems or drives. It is configured by JSON files within a directory `~/.identity` that are formatted according to [this specification](https://systemd.io/USER_RECORD/). Since this feature is going to be used widely across many different environments, creating these configuration files within a shell context is useful. Let's replicate the most involved example from this page using the following `jo` invocation:
+
+```
+$ DRIVE_UUID=$(uuidgen | tr -d -- -)
+$ jo \
+  autoLogin@true \
+  binding=:<(jo "$DRIVE_UUID"=:<(jo fileSystemType=ext4 fileSystemUuid=$(uuidgen) gid=60232 homeDirectory=/home/delucks imagePath=/home/delucks.home luksCipher=aes luksCipherMode=xts-plain64 luksUuid=$(uuidgen) luksVolumeKeySize=32 partitionUuid=$(uuidgen) storage=luks uid=60232)) \
+  status=:<(jo "$DRIVE_UUID"=:<(jo goodAuthenticationCounter=16 lastGoodAuthenticationUSec=$(date +%s%N) rateLimitBeginUSec=1566309342340723 rateLimitCount=1 state=inactive service=io.systemd.Home diskSize=161118667776 diskCeiling=190371729408 diskFloor=5242880 signedLocally@true)) \
+  disposition=regular \
+  enforcePasswordPolicy@false \
+  lastChangeUSec=$(date +%s%N) \
+  memberOf=:<(echo wheel | jo -a) \
+  privileged=:<(jo hashedPassword=$(openssl passwd -6 -salt xyz Nonsense | jo -a)) \
+  userName=delucks \
+  locked@false | jq -S .
+```
+
+This produces the following JSON document, which is a fully formed example of how to configure `systemd-homed`:
+
+```javascript
+{
+  "autoLogin": true,
+  "binding": {
+    "9a94dd8cc69d407f8dc6d73d026a5beb": {
+      "fileSystemType": "ext4",
+      "fileSystemUuid": "330a64b4-24e5-4015-a28b-db3a56b43f2c",
+      "gid": 60232,
+      "homeDirectory": "/home/delucks",
+      "imagePath": "/home/delucks.home",
+      "luksCipher": "aes",
+      "luksCipherMode": "xts-plain64",
+      "luksUuid": "f41cead2-bfba-41e2-9c16-15eff8e5d0d0",
+      "luksVolumeKeySize": 32,
+      "partitionUuid": "b4b5b509-c74e-4c4a-b2f5-b35272e652c1",
+      "storage": "luks",
+      "uid": 60232
+    }
+  },
+  "disposition": "regular",
+  "enforcePasswordPolicy": false,
+  "lastChangeUSec": 1585257325374165000,
+  "locked": false,
+  "memberOf": [
+    "wheel"
+  ],
+  "privileged": {
+    "hashedPassword": [
+      "$6$xyz$YqRpzp3ROcNuHgzLDUAv.CcOW0DXV8paXX8eW0002NWe7.ke.4QT0c3tpHzktZh26Mr0ZyOJJ1wc.JIfGGT/h/"
+    ]
+  },
+  "status": {
+    "9a94dd8cc69d407f8dc6d73d026a5beb": {
+      "diskCeiling": 190371729408,
+      "diskFloor": 5242880,
+      "diskSize": 161118667776,
+      "goodAuthenticationCounter": 16,
+      "lastGoodAuthenticationUSec": 1585257325395444000,
+      "rateLimitBeginUSec": 1566309342340723,
+      "rateLimitCount": 1,
+      "service": "io.systemd.Home",
+      "signedLocally": true,
+      "state": "inactive"
+    }
+  },
+  "userName": "delucks"
+}
+```
+
+Some of the parts of this example are clearly contrived; this generates new disk UUIDs every time it's run and uses a password of "Nonsense" - but it illustrates that you're a step away from automating creation of these JSON files using `jo`. It's a simple matter to substitute real commands for measuring disk quota, gathering partition UUIDs, etc.
 
 ## tl;dr
 
-(re)Summarize why this tool is interesting and worth using.
+There are already a number of supporting utilities for _reading_ and _parsing_ JSON data, but `jo` allows the creation of JSON documents to be done within the shell as well. For simple JSON structures, it cleans up the formatting within your commands and adds features like reading text files and nested documents. For more complex structures, `jo` bridges the gap between ad-hoc string construction and a programming language with a full JSON implementation.
 
 :information_source: **Interested in seeing more posts like this?** Subscribe to the [cli.fan RSS feed](/posts/index.xml) linked here and in the top navigation bar.
