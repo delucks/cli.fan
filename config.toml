@@ -13,7 +13,7 @@ enableRobotsTXT = true
     title = "cli.fan"
     subtitle = "Showcasing the best command-line tools"
     keywords = "blog"
-    copyright = 'Copyright 2022 Jamie Luck (<a href="https://github.com/delucks/">delucks</a>)'
+    copyright = 'Copyright 2024 Jamie Luck (<a href="https://github.com/delucks/">delucks</a>)'
     readMore = "Read more"
     readOtherPosts = "Other posts on cli.fan"
 
